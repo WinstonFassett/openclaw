@@ -106,3 +106,45 @@ describe("isCommandMessage", () => {
     expect(isCommandMessage({})).toBe(false);
   });
 });
+
+describe("extractTextFromMessage - reply tag stripping", () => {
+  it("strips [[reply_to:id]] from assistant messages", () => {
+    const text = extractTextFromMessage({
+      role: "assistant",
+      content: [{ type: "text", text: "[[reply_to:msg_123]]Hello there" }],
+    });
+    expect(text).toBe("Hello there");
+  });
+
+  it("strips [[reply_to_current]] from assistant messages", () => {
+    const text = extractTextFromMessage({
+      role: "assistant",
+      content: [{ type: "text", text: "[[reply_to_current]]Hello there" }],
+    });
+    expect(text).toBe("Hello there");
+  });
+
+  it("preserves reply tags in user messages", () => {
+    const text = extractTextFromMessage({
+      role: "user",
+      content: [{ type: "text", text: "[[reply_to:msg_123]]Hello there" }],
+    });
+    expect(text).toBe("[[reply_to:msg_123]]Hello there");
+  });
+
+  it("strips multiple reply tags", () => {
+    const text = extractTextFromMessage({
+      role: "assistant",
+      content: [{ type: "text", text: "[[reply_to:a]][[reply_to_current]]Hello" }],
+    });
+    expect(text).toBe("Hello");
+  });
+
+  it("handles inline reply tags", () => {
+    const text = extractTextFromMessage({
+      role: "assistant",
+      content: [{ type: "text", text: "Hello [[reply_to:id]] world" }],
+    });
+    expect(text).toBe("Hello world");
+  });
+});
