@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { stripThinkingTags } from "./format";
+import { stripReplyTags, stripThinkingTags } from "./format";
 
 describe("stripThinkingTags", () => {
   it("strips <think>…</think> segments", () => {
@@ -37,5 +37,42 @@ describe("stripThinkingTags", () => {
     // This should not crash and should handle gracefully
     expect(stripThinkingTags("<final\nHello")).toBe("<final\nHello");
     expect(stripThinkingTags("Hello</final>")).toBe("Hello");
+  });
+});
+
+describe("stripReplyTags", () => {
+  it("strips [[reply_to:id]] tags", () => {
+    expect(stripReplyTags("[[reply_to:msg_123]]Hello")).toBe("Hello");
+    expect(stripReplyTags("Hello [[reply_to:abc]] world")).toBe("Hello world");
+    expect(stripReplyTags("[[reply_to:  spaces  ]] text")).toBe("text");
+  });
+
+  it("strips [[reply_to_current]] tags", () => {
+    expect(stripReplyTags("[[reply_to_current]]Hello")).toBe("Hello");
+    expect(stripReplyTags("Hello [[reply_to_current]] world")).toBe("Hello world");
+  });
+
+  it("handles whitespace in tags", () => {
+    expect(stripReplyTags("[[ reply_to_current ]]Hello")).toBe("Hello");
+    expect(stripReplyTags("[[  reply_to : id  ]]Hello")).toBe("Hello");
+  });
+
+  it("strips multiple tags", () => {
+    expect(stripReplyTags("[[reply_to:a]][[reply_to:b]]Hello")).toBe("Hello");
+    expect(stripReplyTags("[[reply_to_current]][[reply_to:id]]text")).toBe("text");
+  });
+
+  it("returns original text when no tags exist", () => {
+    expect(stripReplyTags("Hello world")).toBe("Hello world");
+  });
+
+  it("normalizes multiple spaces to single space", () => {
+    expect(stripReplyTags("Hello   world")).toBe("Hello world");
+    expect(stripReplyTags("a [[reply_to:x]]  b")).toBe("a b");
+  });
+
+  it("handles case-insensitive matching", () => {
+    expect(stripReplyTags("[[REPLY_TO_CURRENT]]Hello")).toBe("Hello");
+    expect(stripReplyTags("[[Reply_To:id]]Hello")).toBe("Hello");
   });
 });

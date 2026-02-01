@@ -1,4 +1,4 @@
-import { stripThinkingTags } from "../format";
+import { stripReplyTags, stripThinkingTags } from "../format";
 
 const ENVELOPE_PREFIX = /^\[([^\]]+)\]\s*/;
 const ENVELOPE_CHANNELS = [
@@ -33,12 +33,16 @@ export function stripEnvelope(text: string): string {
   return text.slice(match[0].length);
 }
 
+function processAssistantText(text: string): string {
+  return stripReplyTags(stripThinkingTags(text));
+}
+
 export function extractText(message: unknown): string | null {
   const m = message as Record<string, unknown>;
   const role = typeof m.role === "string" ? m.role : "";
   const content = m.content;
   if (typeof content === "string") {
-    const processed = role === "assistant" ? stripThinkingTags(content) : stripEnvelope(content);
+    const processed = role === "assistant" ? processAssistantText(content) : stripEnvelope(content);
     return processed;
   }
   if (Array.isArray(content)) {
@@ -51,12 +55,12 @@ export function extractText(message: unknown): string | null {
       .filter((v): v is string => typeof v === "string");
     if (parts.length > 0) {
       const joined = parts.join("\n");
-      const processed = role === "assistant" ? stripThinkingTags(joined) : stripEnvelope(joined);
+      const processed = role === "assistant" ? processAssistantText(joined) : stripEnvelope(joined);
       return processed;
     }
   }
   if (typeof m.text === "string") {
-    const processed = role === "assistant" ? stripThinkingTags(m.text) : stripEnvelope(m.text);
+    const processed = role === "assistant" ? processAssistantText(m.text) : stripEnvelope(m.text);
     return processed;
   }
   return null;

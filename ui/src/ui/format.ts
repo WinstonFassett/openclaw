@@ -75,3 +75,14 @@ export function parseList(input: string): string[] {
 export function stripThinkingTags(value: string): string {
   return stripReasoningTagsFromText(value, { mode: "preserve", trim: "start" });
 }
+
+const REPLY_TAG_RE = /\[\[\s*(?:reply_to_current|reply_to\s*:\s*[^\]\n]+)\s*\]\]/gi;
+
+/**
+ * Strip [[reply_to:id]] and [[reply_to_current]] directive tags from text.
+ * These are model directives for native reply/quote on messaging channels
+ * and should not be shown in UI.
+ */
+export function stripReplyTags(value: string): string {
+  return value.replace(REPLY_TAG_RE, " ").replace(/[ \t]+/g, " ").trim();
+}
