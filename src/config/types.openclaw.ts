@@ -18,6 +18,7 @@ import type {
   CommandsConfig,
   MessagesConfig,
 } from "./types.messages.js";
+import type { McpConfig } from "./types.mcp.js";
 import type { ModelsConfig } from "./types.models.js";
 import type { NodeHostConfig } from "./types.node-host.js";
 import type { PluginsConfig } from "./types.plugins.js";
@@ -57,6 +58,7 @@ export type OpenClawConfig = {
   };
   diagnostics?: DiagnosticsConfig;
   logging?: LoggingConfig;
+  mcp?: McpConfig;
   update?: {
     /** Update channel for git + npm installs ("stable", "beta", or "dev"). */
     channel?: "stable" | "beta" | "dev";

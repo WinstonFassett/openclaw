@@ -18,6 +18,7 @@ export type AcpClientOptions = {
   serverArgs?: string[];
   serverVerbose?: boolean;
   verbose?: boolean;
+  mcpServers?: any[];
 };
 
 export type AcpClientHandle = {
@@ -134,7 +135,7 @@ export async function createAcpClient(opts: AcpClientOptions = {}): Promise<AcpC
   log("creating session");
   const session = await client.newSession({
     cwd,
-    mcpServers: [],
+    mcpServers: opts.mcpServers ?? [],
   });
 
   return {
