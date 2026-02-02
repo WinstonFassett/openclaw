@@ -1,0 +1,43 @@
+{
+  // Example OpenClaw configuration with MCP server support
+  agents: {
+    defaults: { workspace: "~/.openclaw/workspace" }
+  },
+  
+  // MCP server configuration
+  mcp: {
+    enabled: true,
+    timeoutMs: 30000,
+    
+    // Define MCP servers
+    servers: {
+      "my-mcp-server": {
+        name: "my-mcp-server",
+        command: "mcporter",
+        args: ["daemon", "start"],
+        env: {
+          "MCP_SERVER_URL": "https://my-mcp-server.com"
+        },
+        timeoutMs: 15000,
+        blocking: true  // Enable synchronous interaction
+      },
+      
+      "linear-mcp": {
+        name: "linear-mcp", 
+        command: "mcporter",
+        args: ["call", "linear.list_issues"],
+        env: {
+          "LINEAR_API_KEY": "${LINEAR_API_KEY}"
+        },
+        blocking: true
+      }
+    },
+    
+    // Default servers to use for new sessions
+    defaultServers: ["my-mcp-server"]
+  },
+  
+  channels: {
+    whatsapp: { allowFrom: ["+15555550123"] }
+  }
+}
